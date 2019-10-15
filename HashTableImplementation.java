@@ -1,3 +1,5 @@
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -8,8 +10,52 @@ class HashTableImplementation {
         System.out.println(test.get("87.23.125.4"));
         test.remove("87.23.125.4");
         System.out.println(test.get("87.23.125.4"));
+
+        test.add("87.23.125.4");
+        test.add("87.23.125.4");
+        System.out.println(test.get("87.23.125.4"));
+
+        try {
+            test.add("87.23.125.invalid");
+        } catch (Exception e) {
+            System.out.println("caught exception!");
+        }
+
+        HashSet<String> expect = new HashSet<>();
+
+        for (int i=0; i<500; i++) {
+            String IP = Tester.generateRandomIP();
+            test.add(IP);
+            expect.add(IP);
+        }
+        System.out.println(Tester.getAverageBucketSize(test.storage));
+
+        for (String IP : expect) {
+            if (!test.get(IP)) System.out.println("something is wrong");
+        }
+
     }
 
+}
+
+class Tester {
+    static double getAverageBucketSize(LinkedList<String>[] IPHashSet) {
+        int sizeSum = Arrays.stream(IPHashSet).reduce(0,
+                (sum, bucket) -> bucket == null ? 0 : sum + bucket.size(),
+                Integer::sum);
+        return (double) sizeSum / IPHashSet.length;
+    }
+
+    static String generateRandomIP() {
+        Random rand = new Random();
+        StringBuilder IP = new StringBuilder();
+        for (int i=0; i<4; i++) {
+            int digit = rand.nextInt(256);
+            IP.append(digit);
+            if (i != 3) IP.append(".");
+        }
+        return IP.toString();
+    }
 }
 
 class IPHashSet {
